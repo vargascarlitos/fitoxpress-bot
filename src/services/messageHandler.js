@@ -14,6 +14,12 @@ class MessageHandler {
         await whatsappService.sendMessage(message.from, response, message.id);
       }
       await whatsappService.markAsRead(message.id);
+    } else if (message?.type === 'interactive') {
+      const option = message?.interactive?.button_reply?.title.toLowerCase();
+      console.log(`opcion: ${option}`)
+      await this.handleMenuOption(message.from, option, message.id);
+      await whatsappService.markAsRead(message.id);
+
     }
   }
 
@@ -41,7 +47,7 @@ class MessageHandler {
       },
       {
         type: 'reply',
-        reply: { id: 'option_2', title: 'Consutar' }
+        reply: { id: 'option_2', title: 'Consultar' }
       },
       {
         type: 'reply',
@@ -50,6 +56,29 @@ class MessageHandler {
     ];
 
     await whatsappService.sendInteractiveButton(to, menuTitle, menuButtons);
+  }
+
+
+  async handleMenuOption(to, option, messageId) {
+    let response;
+    switch (option) {
+      case 'agendar':
+        response = 'Vamos a agendar una cita. Aquí está el flujo...';
+        break;
+
+      case 'consultar':
+        response = 'Realiza tu consulta ahora.';
+        break;
+
+      case 'ubicacion':
+        response = 'Esta es nuestra ubicación.';
+        break;
+
+      default:
+        response = 'Lo siento, no entendí tu selección. Por favor, elige una de las opciones del menú.';
+        break;
+    }
+    await whatsappService.sendMessage(to, response, messageId);
   }
 }
 
